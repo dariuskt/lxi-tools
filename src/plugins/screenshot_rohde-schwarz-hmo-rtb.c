@@ -40,7 +40,7 @@
 
 #define IMAGE_SIZE_MAX 0x100000 * 20 // 20 MB
 
-int rs_hmo_rtb_screenshot(char *address, char *id, int timeout)
+int rs_hmo_rtb_screenshot(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     char *command, *image;
     int device, length, n;
@@ -57,7 +57,7 @@ int rs_hmo_rtb_screenshot(char *address, char *id, int timeout)
     }
 
     // Connect to LXI instrument
-    device = lxi_connect(address, 0, NULL, timeout, VXI11);
+    device = lxi_connect(address, port, NULL, timeout, protocol);
     if (device == LXI_ERROR)
     {
         error_printf("Failed to connect\n");

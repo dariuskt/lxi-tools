@@ -1251,7 +1251,7 @@ static bool grab_screenshot(LxiGuiWindow *self)
     self->plugin_name = NULL;
     // Capture screenshot
     g_mutex_lock(&self->mutex_connection);
-    status = screenshot((char *)self->ip, self->plugin_name, filename, timeout, false, self->image_buffer, &(self->image_size), self->image_format, self->image_filename);
+    status = screenshot((char *)self->ip, self->port, self->protocol, self->plugin_name, filename, timeout, false, self->image_buffer, &(self->image_size), self->image_format, self->image_filename);
     g_mutex_unlock(&self->mutex_connection);
     if (status != 0)
     {
@@ -1397,7 +1397,7 @@ static gpointer live_view_worker_thread(gpointer data)
     }
     self->plugin_name = NULL;
     g_mutex_lock(&self->mutex_connection);
-    self->plugin_name = screenshot_detect_plugin_name((char *)self->ip, timeout);
+    self->plugin_name = screenshot_detect_plugin_name((char *)self->ip, self->port, self->protocol, timeout);
     g_mutex_unlock(&self->mutex_connection);
     if(self->plugin_name == NULL)
     {
@@ -1418,7 +1418,7 @@ static gpointer live_view_worker_thread(gpointer data)
             g_mutex_unlock(&self->mutex_connection);
             break;
         }
-        status = screenshot((char *)self->ip, self->plugin_name, filename, timeout, false, self->image_buffer, &(self->image_size), self->image_format, self->image_filename);
+        status = screenshot((char *)self->ip, self->port, self->protocol, self->plugin_name, filename, timeout, false, self->image_buffer, &(self->image_size), self->image_format, self->image_filename);
         if (status != 0)
         {
             show_error(self, "Live view: Failed to grab screenshot");

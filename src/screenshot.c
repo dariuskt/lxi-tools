@@ -46,6 +46,8 @@
 #define PLUGIN_LIST_SIZE_MAX 50
 #define ID_LENGTH_MAX 4096
 
+extern struct screenshot_plugin generic_bmp;
+extern struct screenshot_plugin generic_png;
 extern struct screenshot_plugin keysight_dmm;
 extern struct screenshot_plugin keysight_psa;
 extern struct screenshot_plugin keysight_pxa;
@@ -82,13 +84,13 @@ static char *screenshot_image_filename;
 
 static char id[ID_LENGTH_MAX];
 
-static int get_device_id(char *address, char *id, int timeout)
+static int get_device_id(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     int device, bytes_sent, bytes_received;
     char *command;
 
     // Connect to LXI instrument
-    device = lxi_connect(address, 0, NULL, timeout, VXI11);
+    device = lxi_connect(address, port, NULL, timeout, protocol);
     if (device == LXI_ERROR)
     {
         error_printf("Failed to connect\n");
@@ -97,6 +99,8 @@ static int get_device_id(char *address, char *id, int timeout)
 
     // Get instrument ID
     command = "*IDN?";
+    if (protocol == RAW)
+        command = "*IDN?\n";
 
     bytes_sent = lxi_send(device, command, strlen(command), timeout);
     if (bytes_sent < 0)
@@ -261,6 +265,8 @@ void screenshot_list_plugins(void)
 void screenshot_register_plugins(void)
 {
     // Register screenshot plugins
+    screenshot_plugin_register(&generic_bmp);
+    screenshot_plugin_register(&generic_png);
     screenshot_plugin_register(&keysight_dmm);
     screenshot_plugin_register(&keysight_psa);
     screenshot_plugin_register(&keysight_pxa);
@@ -287,7 +293,7 @@ void screenshot_register_plugins(void)
     screenshot_plugin_register(&tektronix_mso_5);
 }
 
-char* screenshot_detect_plugin(char *address, char *id, int timeout)
+char* screenshot_detect_plugin(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     bool token_found = true;
     char *token = NULL;
@@ -298,7 +304,7 @@ char* screenshot_detect_plugin(char *address, char *id, int timeout)
     int i = 0;
 
     // Get instrument ID
-    if (get_device_id(address, id, timeout) != 0)
+    if (get_device_id(address, port, protocol, id, timeout) != 0)
     {
         error_printf("Unable to retrieve instrument ID\n");
         return NULL;
@@ -361,7 +367,8 @@ char* screenshot_detect_plugin(char *address, char *id, int timeout)
 
 }
 
-int screenshot(char *address, char *plugin_name, char *filename,
+int screenshot(char *address, int port, lxi_protocol_t protocol,
+               char *plugin_name, char *filename,
                int timeout, bool no_gui, void *image_buffer,
                int *image_size, char *image_format, char *image_filename)
 {
@@ -385,7 +392,7 @@ int screenshot(char *address, char *plugin_name, char *filename,
 
     if ((plugin_name == NULL) || (strlen(plugin_name) == 0))
     {
-        plugin_name = screenshot_detect_plugin(address, id, timeout);
+        plugin_name = screenshot_detect_plugin(address, port, protocol, id, timeout);
         if(plugin_name  == NULL)
         {
             error_printf("Unknown plugin name\n");
@@ -405,11 +412,11 @@ int screenshot(char *address, char *plugin_name, char *filename,
 
 
     // Call capture screenshot function
-    return plugin_list[i]->screenshot(address, id, timeout);
+    return plugin_list[i]->screenshot(address, port, protocol, id, timeout);
 }
 
 
-char* screenshot_detect_plugin_name(char *address, int timeout)
+char* screenshot_detect_plugin_name(char *address, int port, lxi_protocol_t protocol, int timeout)
 {
-    return screenshot_detect_plugin(address, id, timeout);
+    return screenshot_detect_plugin(address, port, protocol, id, timeout);
 }

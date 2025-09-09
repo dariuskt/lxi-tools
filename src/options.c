@@ -99,6 +99,7 @@ void print_help(char *argv[])
     printf("  -t, --timeout <seconds>              Timeout (default: %d)\n", TIMEOUT_SCREENSHOT);
     printf("  -p, --plugin <name>                  Use screenshot plugin by name\n");
     printf("  -l, --list                           List available screenshot plugins\n");
+    printf("  -r, --raw                            Use raw/TCP\n");
     printf("\n");
     printf("Benchmark options:\n");
     printf("  -a, --address <ip>                   Device IP address\n");
@@ -236,13 +237,14 @@ void parse_options(int argc, char *argv[])
             {"timeout",        required_argument, 0, 't'},
             {"plugin",         required_argument, 0, 'p'},
             {"list",           no_argument,       0, 'l'},
+            {"raw",            no_argument,       0, 'r'},
             {0,                0,                 0,  0 }
         };
 
         do
         {
             /* Parse screenshot options */
-            c = getopt_long(argc, argv, "a:t:p:l", long_options, &option_index);
+            c = getopt_long(argc, argv, "a:t:p:lr", long_options, &option_index);
 
             switch (c)
             {
@@ -260,6 +262,10 @@ void parse_options(int argc, char *argv[])
 
                 case 'l':
                     option.list = true;
+                    break;
+
+                case 'r':
+                    option.protocol = RAW;
                     break;
 
                 case '?':

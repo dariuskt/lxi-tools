@@ -10,6 +10,8 @@ common_sources = [
   'lxilua.c',
   'misc.c',
   'screenshot.c',
+  'plugins/screenshot_generic-bmp.c',
+  'plugins/screenshot_generic-png.c',
   'plugins/screenshot_keysight-dmm.c',
   'plugins/screenshot_keysight-psa.c',
   'plugins/screenshot_keysight-pxa.c',

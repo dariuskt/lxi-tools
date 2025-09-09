@@ -40,7 +40,7 @@
 
 #define IMAGE_SIZE_MAX 0x400000 // 4 MB
 
-int siglent_sds_screenshot(char *address, char *id, int timeout)
+int siglent_sds_screenshot(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     char* response = malloc(IMAGE_SIZE_MAX);
     char *command;
@@ -49,7 +49,7 @@ int siglent_sds_screenshot(char *address, char *id, int timeout)
     UNUSED(id);
 
     // Connect to LXI instrument
-    device = lxi_connect(address, 0, NULL, timeout, VXI11);
+    device = lxi_connect(address, port, NULL, timeout, protocol);
     if (device == LXI_ERROR)
     {
         error_printf("Failed to connect\n");

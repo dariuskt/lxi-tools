@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023  Martin Lund
+ * Copyright (c) 2025  Darius Vozbutas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,9 @@
 #include "error.h"
 #include "screenshot.h"
 
-#define IMAGE_SIZE_MAX 0x800000 // 8 MB
+#define IMAGE_SIZE_MAX 0x400000 // 4 MB
 
-int tektronix_screenshot_mso_5(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
+int generic_png_screenshot(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     char* response = malloc(IMAGE_SIZE_MAX);
     char *command;
@@ -56,27 +56,21 @@ int tektronix_screenshot_mso_5(char *address, int port, lxi_protocol_t protocol,
         goto error_connect;
     }
 
-    // Send SCPI commands to grab PNG image
-    command = "SAVE:IMAGE 'c:/lxi-tools-screenshot.png'";
-    lxi_send(device, command, strlen(command), timeout);
-    command = "*WAI";
-    lxi_send(device, command, strlen(command), timeout);
-    command = "FILESYSTEM:READFILE 'c:/lxi-tools-screenshot.png'";
-    lxi_send(device, command, strlen(command), timeout);
+    // Send SCPI command to grab PNG image
+    command = "display:data?";
+    if (protocol == RAW)
+        command = "display:data?\n";
+
+    length = lxi_send(device, command, strlen(command), timeout);
     length = lxi_receive(device, response, IMAGE_SIZE_MAX, timeout);
-    if (length < 0)
+
+    if (length <= 0)
     {
         error_printf("Failed to receive message\n");
         goto error_receive;
     }
 
-    // Cleanup
-    command = "FILESystem:DELEte 'c:/lxi-tools-screenshot.png'";
-    lxi_send(device, command, strlen(command), timeout);
-    command = "*WAI";
-    lxi_send(device, command, strlen(command), timeout);
-
-    // Dump PNG image data to file
+    // Dump remaining PNG image data to file
     screenshot_file_dump(response, length, "png");
 
     // Free allocated memory for screenshot
@@ -96,12 +90,11 @@ error_receive:
     return 1;
 }
 
-
 // Screenshot plugin configuration
-struct screenshot_plugin tektronix_mso_5 =
+struct screenshot_plugin generic_png =
 {
-    .name = "tektronix-mso-5",
-    .description = "Tektronix MSO 5 series oscilloscope",
-    .regex = "TEKTRONIX MSO5...",
-    .screenshot = tektronix_screenshot_mso_5
+    .name = "generic-png",
+    .description = "for manufacturers that provide compatibility with lxi-tools",
+    .regex = "lxi-tools/png",
+    .screenshot = generic_png_screenshot
 };

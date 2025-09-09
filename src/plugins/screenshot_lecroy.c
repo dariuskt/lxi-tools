@@ -68,7 +68,7 @@ static int scdp_status_wait(int device, int timeout)
     return 1;
 }
 
-int lecroy_screenshot(char *address, char *id, int timeout)
+int lecroy_screenshot(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     UNUSED(id);
 
@@ -80,7 +80,7 @@ int lecroy_screenshot(char *address, char *id, int timeout)
         return 1;
     }
 
-    int device = lxi_connect(address, 0, NULL, timeout, VXI11);
+    int device = lxi_connect(address, port, NULL, timeout, protocol);
     if (device == LXI_ERROR)
     {
         error_printf("Failed to connect\n");

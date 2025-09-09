@@ -36,10 +36,12 @@ extern "C" {
 
 #include <stdbool.h>
 #include "misc.h"
+#include <lxi.h>
 
 void screenshot_register_plugins(void);
 void screenshot_list_plugins(void);
-int screenshot(char *address, char *plugin_name, char *filename,
+int screenshot(char *address, int port, lxi_protocol_t protocol,
+               char *plugin_name, char *filename,
                int timeout, bool no_gui, void *image_buffer,
                int *image_size, char *image_format, char *image_filename);
 
@@ -51,10 +53,10 @@ struct screenshot_plugin
    const char *name;
    const char *description;
    const char *regex;
-   int (*screenshot)(char *address, char *id, int timeout);
+   int (*screenshot)(char *address, int port, lxi_protocol_t protocol, char *id, int timeout);
 };
 
-char* screenshot_detect_plugin_name(char *address, int timeout);
+char* screenshot_detect_plugin_name(char *address, int port, lxi_protocol_t protocol, int timeout);
 
 #ifdef __cplusplus
 }

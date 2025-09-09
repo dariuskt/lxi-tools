@@ -33,7 +33,8 @@ _lxi()
     screenshot_opts="-a --address \
                      -t --timeout \
                      -p --plugin \
-                     -l --list"
+                     -l --list \
+                     -r --raw"
 
     benchmark_opts="-a --address \
                     -p --port \

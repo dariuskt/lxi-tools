@@ -51,7 +51,7 @@ typedef struct{
 
 void length_check(int length);
 
-int tektronix_screenshot_3000(char *address, char *id, int timeout)
+int tektronix_screenshot_3000(char *address, int port, lxi_protocol_t protocol, char *id, int timeout)
 {
     restore param;
     char* response = malloc(IMAGE_SIZE_MAX);
@@ -61,7 +61,7 @@ int tektronix_screenshot_3000(char *address, char *id, int timeout)
     UNUSED(id);
 
     // Connect to LXI instrument
-    device = lxi_connect(address, 0, NULL, timeout, VXI11);
+    device = lxi_connect(address, port, NULL, timeout, protocol);
     if (device == LXI_ERROR)
     {
         error_printf("Failed to connect\n");
