@@ -57,9 +57,9 @@ int generic_png_screenshot(char *address, int port, lxi_protocol_t protocol, cha
     }
 
     // Send SCPI command to grab PNG image
-    command = "display:data?";
+    command = "display:data? PNG";
     if (protocol == RAW)
-        command = "display:data?\n";
+        command = "display:data? PNG\n";
 
     length = lxi_send(device, command, strlen(command), timeout);
     length = lxi_receive(device, response, IMAGE_SIZE_MAX, timeout);
